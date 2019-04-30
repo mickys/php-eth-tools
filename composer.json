@@ -1,0 +1,44 @@
+{
+    "name": "mickys/php-eth-tools",
+    "type": "project",
+    "description": "PHP Ethereum Tools, Message Signing, EC Recover, Key Generation.",
+    "keywords": [
+        "php",
+        "ethereum",
+        "ec_recover",
+        "key generation"
+    ],
+    "license": "MIT",
+    "require": {
+        "php": "^7.0",
+        "digitaldonkey/ecverify": "^1.0",
+        "kornrunner/keccak": "^1.0",
+        "sc0vu/web3.php": "dev-master",
+        "simplito/elliptic-php": "^1.0",
+        "sop/asn1": "^3.3",
+        "sop/crypto-encoding": "^0.2.0",
+        "sop/crypto-types": "^0.2.1",
+        "symfony/dotenv": "^4.0"
+    },
+    "require-dev": {
+        "mockery/mockery": "^1.0",
+        "phpunit/phpunit": "^7.5.4"
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "autoload": {
+        "psr-4": {
+            "EthereumTools\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "test/"
+        }
+    }
+}
