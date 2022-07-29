@@ -57,7 +57,7 @@ class UtilsTest extends BaseTest
         $message = "Hello!!";
 
         $fromPrivateKey = "0xDFA6394B4E5779B3130F5E6ED215B015D67E1346BB2DC99C93D217E2A751E762";
-        $fromAddress    = "0x1c4476b864c4a848374a65ce2c09efd56163fafa";
+        $fromAddress    = "0x1c4476B864c4a848374a65ce2c09eFD56163faFA";
         $singedMessage  = "0x45af4b8d46a208dec17c90883a33c74e8c08c75e122fd64c52a2b24fff02108c2992ae257bbbbbd28fdb3478a2f2d864ebcdda6be26a1fbeedc449fb11db10441c";
 
         $signed = Utils::personalSign($fromPrivateKey, $message);
@@ -85,6 +85,50 @@ class UtilsTest extends BaseTest
         $message = "Hello world!";
         $signed = Utils::personalSign($ethkeys["key"], $message);
         $recoveredAddress  = Utils::personalEcRecover($message, $signed);
-        $this->assertTrue($recoveredAddress == $ethkeys["address"]);
+        $this->assertTrue($recoveredAddress == \Web3\Utils::toChecksumAddress($ethkeys["address"]));
+    }
+
+
+    /**
+     * Test ethers.js recovery
+     * 
+     * @return void
+     */
+    function testValidateEthersJsPersonalSignedMessageRecoveryWorksTheSame()
+    {
+        $fromPrivateKey = "0xDFA6394B4E5779B3130F5E6ED215B015D67E1346BB2DC99C93D217E2A751E762";
+        $fromAddress    = "0x1c4476B864c4a848374a65ce2c09eFD56163faFA";
+
+        $message = '{"website":"https://localhost:3000","address":"0x1c4476B864c4a848374a65ce2c09eFD56163faFA","timestamp":1659051676,"email":"micky@x.com"}';
+
+        $messageHash = Utils::hashPersonalMessage($message);
+        $this->assertTrue($messageHash === "0x612eee380e09119c1cb8e055ad4aaaf729d9cf7cce6d533eff1fcb52817648b5");
+
+        $signed = Utils::personalSign($fromPrivateKey, $messageHash);
+        $ethersJsSigned = "0x8b0cb075ff682741d36f904efc9258cc81d155e2f1c295ffa5a6c8144ac011ee2e573b66bfa32046f668f5b8c0e7ca8c749091316377553dfb8557bb9568bf641b";
+        $this->assertTrue($signed === $ethersJsSigned);
+
+        $recoveredAddress = Utils::personalEcRecover($messageHash, $ethersJsSigned);
+        $this->assertTrue($recoveredAddress === $fromAddress);
+
+    }
+
+    /**
+     * Test ethers.js recovery
+     * 
+     * @return void
+     */
+    function testValidateLedgerPersonalSignedMessageRecovery()
+    {
+        $fromAddress    = "0x566Ed72d83229d073EA9a9324b0EEC49bfA82DA4";
+        $message        = '{"website":"https://localhost:3000","address":"0x566Ed72d83229d073EA9a9324b0EEC49bfA82DA4","timestamp":1659061994,"email":"micky@x.com"}';
+        $messageHash    = "0x4875da822e9a95343758bbeb6f962954198bb56bf78abc667642b46e6c9bf60c";
+        $signedMessage  = "0x212bcfdd870d14a8dfaab333d237407199df91c284cde09a2448c97999acf36c724731637dbb4f5eb0dbaca3be594b8267f4b106b6218218271836b3ad05e66b01";
+
+        $hash = Utils::hashPersonalMessage($message);
+        $this->assertTrue($messageHash === $hash);
+
+        $recoveredAddress = Utils::personalEcRecover($hash, $signedMessage);
+        $this->assertTrue($recoveredAddress === $fromAddress);
     }
 }

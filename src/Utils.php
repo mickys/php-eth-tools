@@ -191,7 +191,7 @@ class Utils
     }
 
     /**
-     * Recover Public Key
+     * Recover Public Address
      *
      * @param string $hex 
      * @param string $signed 
@@ -200,7 +200,13 @@ class Utils
      */
     public static function ecRecover($hex, $signed)
     {
-        return EcRecover::phpEcRecover($hex, $signed);
+        // For ledger signed messages we need to make sure V is V+27
+        $V = ord(hex2bin(substr($signed, 130, 2))) ; // - 27;
+        if($V < 27) {
+            $signed = substr($signed, 0, 130).dechex($V + 27);
+        }
+
+        return \Web3\Utils::toChecksumAddress(EcRecover::phpEcRecover($hex, $signed));
     }
 
     /**
@@ -213,7 +219,7 @@ class Utils
     public static function hashPersonalMessage(string $message)
     {
         $prefix = sprintf("\x19Ethereum Signed Message:\n%d", mb_strlen($message));
-        return self::sha3($prefix . $message);
+        return "0x".self::sha3($prefix . $message);
     }
 
     /**
